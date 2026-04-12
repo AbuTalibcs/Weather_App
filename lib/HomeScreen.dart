@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:weather_app/models/weather_model.dart';
+import 'package:weather_app/service/weater_service.dart';
 
 class WeatherappHomepage extends StatefulWidget{
   const WeatherappHomepage({super.key});
@@ -8,17 +10,52 @@ class WeatherappHomepage extends StatefulWidget{
     return _WeatherappHomepage();
   }
 }
+
+final String city = 'Ranchi'; // Default city set to Ranchi
+final String tempUnit = "C";
+final String tempData = "19";
+final String w_disc = "Clear";
+final int feels_like = 20;
+final int maxT = 15;
+final int minT = 10;
+
+
 var text_stlye = TextStyle(
     fontWeight: FontWeight.w400,
     fontSize: 18,
     color: Color.fromRGBO(0, 0, 0, 0.7)
 );
+
 Color mycolor = Colors.white;
 Color icon_color = Color.fromRGBO(0, 0, 0, 0.5);
-var tempUnit = "C";
 double today_width = 65;
 
 class _WeatherappHomepage extends State<WeatherappHomepage>{
+
+  final WeatherService _weatherService = WeatherService() ;
+  WeatherModel? _weatherModel;
+
+  bool isLoading = false;
+
+  void getData() async{
+    setState(() {
+      isLoading = true;
+    });
+
+    try{
+      final weather = await _weatherService.fetchWeather(city);
+      setState(() {
+        _weatherModel = weather;
+        isLoading = false;
+      });
+    } catch (e){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error Fetching Data"))
+      );
+    }
+
+  }
+
   @override
   Widget build(BuildContext Context){
 
@@ -39,9 +76,6 @@ class _WeatherappHomepage extends State<WeatherappHomepage>{
         color: Color.fromRGBO(0, 0, 0, 0.7)
     );
 
-    var city = 'Ranchi';
-    var tempData = "15";
-    var w_disc = "Clear";
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -120,7 +154,7 @@ class _WeatherappHomepage extends State<WeatherappHomepage>{
                                     ),
                                   ],
                                 ),
-                                Text("High: 15°C Low: 10°C",
+                                Text("High: ${maxT}°C Low: ${minT}°C",
                                   style: TextStyle(
                                     color: Color.fromRGBO(0, 0, 0, 0.6),
                                       fontWeight: FontWeight.w500
@@ -157,7 +191,7 @@ class _WeatherappHomepage extends State<WeatherappHomepage>{
                                   ),
                                 ),
                                   Text(
-                                    "Feels like 18°C",
+                                    "Feels like ${feels_like}°C",
                                     style: TextStyle(
                                         color: Color.fromRGBO(0, 0, 0, 0.6),
                                         fontWeight: FontWeight.w500
