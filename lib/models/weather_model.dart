@@ -1,5 +1,23 @@
 import 'package:flutter/material.dart';
 
+class Location{
+  final double lan;
+  final double lon;
+
+  Location({
+    required this.lan,
+    required this.lon
+
+  });
+
+  factory Location.fromJson(Map<String, dynamic> json){
+    return Location(
+        lan: json["latitude"],
+        lon: json["longitude"]
+    );
+  }
+}
+
 class WeatherModel {
 
   final String cityName;

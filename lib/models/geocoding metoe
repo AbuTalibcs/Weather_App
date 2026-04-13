@@ -1,0 +1,27 @@
+
+https://geocoding-api.open-meteo.com/v1/search?name=Ranchi&count=1
+
+{
+  "results": [
+    {
+      "id": 1258526,
+      "name": "Ranchi",
+      "latitude": 23.34316,
+      "longitude": 85.3094,
+      "elevation": 643,
+      "feature_code": "PPLA",
+      "country_code": "IN",
+      "admin1_id": 1444365,
+      "admin2_id": 1258527,
+      "admin3_id": 12680720,
+      "timezone": "Asia/Kolkata",
+      "population": 1120374,
+      "country_id": 1269750,
+      "country": "India",
+      "admin1": "Jharkhand",
+      "admin2": "Ranchi",
+      "admin3": "Kanke"
+    }
+  ],
+  "generationtime_ms": 0.49686432
+}
