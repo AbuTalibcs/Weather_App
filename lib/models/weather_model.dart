@@ -7,12 +7,13 @@ class WeatherModel {
   final double feelsLike;
   final double maxTemp;
   final double minTemp;
-  final String description;
-  final int humidity;
-  final int sunset;
-  final int sunrise;
+  String description;
+  final double humidity;
+  final double sunset;
+  final double sunrise;
   final double windSpeed;
-  Icon weatherIcon;
+
+ // Icon weatherIcon;
 
   WeatherModel({
 
@@ -26,23 +27,25 @@ class WeatherModel {
     required this.sunrise,
     required this.sunset,
     required this.windSpeed,
-    required this.weatherIcon
+
+    //required this.weatherIcon
   });
 
   factory WeatherModel.fromJson(Map<String, dynamic> json){
     
     return WeatherModel(
         cityName: json['name'],
-        temperature: json['main']['temp'],
+        temperature: json['main']['temp'].toDouble,
         feelsLike: json['main']['feels_like'],
         maxTemp: json['main']['temp_max'],
         minTemp: json['main']['temp_min'],
-        description: json['weather']['description'],
+        description: json['weather'][0]['description'],
         humidity: json['main']['humidity'],
         sunrise: json['sys']['sunrise'],
         sunset: json['sys']['sunset'],
         windSpeed: json['wind']['speed'],
-        weatherIcon: json['weather']['icon']
+
+       // weatherIcon: json['weather'][0]['icon']
     );
   }
 

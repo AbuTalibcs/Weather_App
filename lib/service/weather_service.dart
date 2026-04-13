@@ -5,9 +5,10 @@ import 'package:http/http.dart' as http;
 
 class WeatherService {
   final String apiKey = Api_key;
+  final String cityName = 'Ranchi';
 
   Future<WeatherModel> fetchWeather(String city) async{
-   final url = Uri.parse("https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey");
+   final url = Uri.parse("https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=metric");
 
    final response = await http.get(url);
 
