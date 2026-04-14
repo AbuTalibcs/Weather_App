@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:weather_app/models/weather_model.dart';
 import 'package:weather_app/service/weather_service.dart';
+import 'package:weather_app/screens/settings.dart';
+import 'package:weather_app/main.dart';
 
 String defaultCity = 'Ranchi';
 
-class WeatherappHomepage extends StatefulWidget{
-  const WeatherappHomepage({super.key});
+class HomeScreen extends StatefulWidget {
+  final bool isDarkMode;
+  final bool isFahrenheit;
+  final VoidCallback onOpenMenu;
+
+  const HomeScreen({
+    super.key,
+    required this.isDarkMode,
+    required this.isFahrenheit,
+    required this.onOpenMenu,
+  });
 
   @override
-  State<WeatherappHomepage> createState(){
-    return _WeatherappHomepage();
-  }
+  State<HomeScreen> createState() => _WeatherappHomepage();
 }
-class _WeatherappHomepage extends State<WeatherappHomepage>{
+
+class _WeatherappHomepage extends State<HomeScreen>{
 
   final WeatherService _weatherService = WeatherService() ;
   WeatherModel? _weatherModel;
@@ -25,7 +35,7 @@ class _WeatherappHomepage extends State<WeatherappHomepage>{
     });
 
     try{
-      final weather = await _weatherService.fetchWeather(city);
+      final weather = await _weatherService.fetchWeather(latitude, longitude);
       setState(() {
         _weatherModel = weather;
         isLoading = false;
@@ -50,14 +60,6 @@ class _WeatherappHomepage extends State<WeatherappHomepage>{
     getData();
   }
 
-late final String city = _weatherModel?.cityName??"--"; // Default city set to Ranchi
-late final String tempUnit = "C";
-late final Object temperature = _weatherModel?.temperature.toInt()??"--";
-late final String w_disc = _weatherModel?.description??"--";
-late final Object feels_like = _weatherModel?.feelsLike.toInt() ?? "--";
-late final Object maxT = _weatherModel?.maxTemp.toInt() ?? "--";
-late final Object minT = _weatherModel?.minTemp.toInt()??"--";
-
   @override
   Widget build(BuildContext Context){
 
@@ -67,37 +69,130 @@ late final Object minT = _weatherModel?.minTemp.toInt()??"--";
       );
     }
 
-    Container hourlyForecast(String temperature, Icon icon, String time){
+    final clear1 =
+    widget.isDarkMode
+        ? const Color(0xFF0F2027)
+        : Colors.blue;
+
+    final clear2 =
+    widget.isDarkMode
+        ? const Color(0xFF203A43)
+        : Colors.white;
+
+    final clear3 =
+    widget.isDarkMode
+        ? Colors.blueGrey
+        : Colors.grey;
+
+    //[Colors.blueGrey, Colors.white, Colors.indigo]
+    final rain1 =
+    widget.isDarkMode
+        ? const Color(0xFF0F2027)
+        : Colors.blueGrey;
+
+    final rain2 =
+    widget.isDarkMode
+        ? const Color(0xFF203A43)
+        : Colors.white;
+
+    final rain3 =
+    widget.isDarkMode
+        ? Colors.blueGrey
+        : Colors.indigoAccent;
+
+    //[Colors.amberAccent, Colors.cyanAccent, Colors.tealAccent],
+
+    final default1 =
+    widget.isDarkMode
+        ? const Color(0xFF0F2027)
+        : Colors.amberAccent;
+
+    final default2 =
+    widget.isDarkMode
+        ? const Color(0xFF203A43)
+        : Colors.cyanAccent;
+
+    final default3 =
+    widget.isDarkMode
+        ? Colors.blueGrey
+        : Colors.tealAccent;
+
+    /// Color for text
+    final blackNwhiteColor =
+    widget.isDarkMode
+        ? const Color.fromRGBO(255, 255, 255, 0.7) // dark
+        : const Color.fromRGBO(0, 0, 0, 0.65); // light
+
+    final containerColor =
+    widget.isDarkMode
+        ? const Color.fromRGBO(0, 0, 0, 0.65) // light
+        : const Color.fromRGBO(255, 255, 255, 0.7); // dark
+
+
+
+
+
+
+    final String city = _weatherModel?.cityName??"--"; // Default city set to Ranchi
+    final String temperatureUnit = "C";
+    final Object temperature = _weatherModel?.currentTemperature.toInt()??"--";
+    final String description = _weatherModel?.description??"--";
+    final String feelsLike = "${_weatherModel?.feelsLike.toInt()}°${temperatureUnit}";
+    final Object maxT = _weatherModel?.highTemperature.toInt() ?? "--";
+    final Object minT = _weatherModel?.lowTemperature.toInt()??"--";
+
+    String formatHour(String dateTime) {
+      final dt = DateTime.parse(dateTime);
+      final hour = dt.hour;
+
+      if (hour == 0) return "12 AM";
+      if (hour < 12) return "$hour AM";
+      if (hour == 12) return "12 PM";
+      return "${hour - 12} PM";
+    }
+
+    IconData getWeatherIcon(int code) {
+      if (code == 0) return Icons.wb_sunny;
+      if (code <= 3) return Icons.cloud;
+      if (code >= 51 && code <= 67) return Icons.grain;
+      if (code >= 71 && code <= 77) return Icons.ac_unit;
+      if (code >= 95) return Icons.flash_on;
+      return Icons.cloud_queue;
+    }
+
+    Widget buildHourlyForecast(WeatherModel weather) {
       return Container(
-        width: 65,
-        padding: EdgeInsets.fromLTRB(0,5, 0, 5),
-        margin: EdgeInsets.fromLTRB(6, 10, 6, 10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "${temperature}°C",
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 21,
-                color: Color.fromRGBO(0, 0, 0, 0.5)
+        height: 140,
+        color: containerColor,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: weather.hourlyForecast.length,
+          itemBuilder: (context, index) {
+            final hour = weather.hourlyForecast[index];
+
+            return Container(
+              width: 90,
+              margin: const EdgeInsets.only(right: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: containerColor,
+                borderRadius: BorderRadius.circular(20),
               ),
-            ),
-            icon,
-            Text(
-                time,
-                style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 16,
-                  color: Color.fromRGBO(0, 0, 0, 0.6)
-                )
-            )
-          ],
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(formatHour(hour.time), style: TextStyle(color: blackNwhiteColor),),
+                  Icon(getWeatherIcon(hour.weatherCode), color: blackNwhiteColor,),
+                  Text("${hour.temperature.round()}°", style: TextStyle(color: blackNwhiteColor),),
+                ],
+              ),
+            );
+          },
         ),
       );
     }
 
-    Expanded retrunContainer(String dataName, Icon dataIcon, String data){
+    Expanded buildContainer(String dataName, Icon dataIcon, String data){
       return Expanded(
               child: Container(
                 decoration: BoxDecoration(
@@ -156,14 +251,15 @@ late final Object minT = _weatherModel?.minTemp.toInt()??"--";
     }
 
     return MaterialApp(
+
       debugShowCheckedModeBanner: false,
       home: Scaffold(
          appBar: AppBar(
            toolbarHeight: 10,
            /// App bar Background Color
-           backgroundColor: _weatherModel != null && _weatherModel!.description.toLowerCase().contains('clear')?Colors.blue
-            :_weatherModel != null && _weatherModel!.description.toLowerCase().contains('rain')?Colors.blueGrey
-           :Colors.amberAccent,
+           backgroundColor: _weatherModel != null && _weatherModel!.description.toLowerCase().contains('clear')?clear1
+            :_weatherModel != null && _weatherModel!.description.toLowerCase().contains('rain')?rain1
+           :default1,
            elevation: 0,
         ),
 
@@ -177,26 +273,26 @@ late final Object minT = _weatherModel?.minTemp.toInt()??"--";
 
             /// Background when description == clear
             gradient: _weatherModel != null && _weatherModel!.description.toLowerCase().contains('clear')?LinearGradient(
-              colors: [Colors.blue, Colors.white, Colors.grey],
+              colors: [clear1, clear2, clear3],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter
             )
 
             /// Background when description == Rain
                 : _weatherModel != null && _weatherModel!.description.toLowerCase().contains('rain')?LinearGradient(
-                colors: [Colors.blueGrey, Colors.white, Colors.indigo],
+                colors: [rain1, rain2, rain3],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter
             )
 
             /// Default Background
                 :LinearGradient(
-                colors: [Colors.amberAccent, Colors.cyanAccent, Colors.tealAccent],
+                colors: [default1,default2,default3],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter
             )
-
           ),
+
           child: Center(
             child: Column(
               children: [
@@ -204,26 +300,36 @@ late final Object minT = _weatherModel?.minTemp.toInt()??"--";
                   spacing: 130,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    IconButton(onPressed: getData, icon: Icon(Icons.refresh)),
+                    IconButton(onPressed: getData, icon: Icon(Icons.refresh, color: blackNwhiteColor,)),
                     Container(
+                      width: 47,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.pin_drop_outlined,
-                            color: Color.fromRGBO(0, 0, 0, 0.7),
+                            color: blackNwhiteColor,
+                            size:25
                           ),
                           Text(
                               city,
                               style : TextStyle(
-                                  color: Color.fromRGBO(0, 0, 0, 0.7),
+                                  color: blackNwhiteColor,
                                   fontWeight: FontWeight.w500,
-                                  fontSize: 18
+                                  fontSize: 16
                               )
                           ),
                         ],
                       ),
                     ),
-                    Icon(Icons.settings, color: Color.fromRGBO(0, 0, 0, 0.5), size: 27,)
+
+                    IconButton(
+                      icon: const Icon(Icons.menu, color: Colors.white),
+                      onPressed: () {
+                        print("Menu clicked");
+                        widget.onOpenMenu();
+                      },
+
+                    )
                   ],
                 ),
 
@@ -248,18 +354,20 @@ late final Object minT = _weatherModel?.minTemp.toInt()??"--";
                                       Text(temperature.toString(),
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          color: Color.fromRGBO(0, 0, 0, 0.8),
+                                          color: blackNwhiteColor,
                                           fontSize: 67,
                                         ),
                                       ),
                                       Text("°",
                                         style: TextStyle(
+                                          color: blackNwhiteColor,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 67,
                                         ),
                                       ),
-                                      Text(tempUnit,
+                                      Text(temperatureUnit,
                                         style: TextStyle(
+                                          color: blackNwhiteColor,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 67,
                                         ),
@@ -268,7 +376,7 @@ late final Object minT = _weatherModel?.minTemp.toInt()??"--";
                                   ),
                                   Text("High: ${maxT}°C Low: ${minT}°C",
                                     style: TextStyle(
-                                      color: Color.fromRGBO(0, 0, 0, 0.6),
+                                      color: blackNwhiteColor,
                                         fontWeight: FontWeight.w500
                                     ),
                                   )
@@ -295,8 +403,9 @@ late final Object minT = _weatherModel?.minTemp.toInt()??"--";
                                 child: Column(
                                   children: [
                                     Text(
-                                    w_disc,
+                                    description,
                                     style: TextStyle(
+                                      color: blackNwhiteColor,
                                         fontSize: 18,
                                         fontWeight: FontWeight.w500
                                     ),
@@ -316,32 +425,15 @@ late final Object minT = _weatherModel?.minTemp.toInt()??"--";
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                          color: Color.fromRGBO(255, 255, 255, 0.6),
+                          color: blackNwhiteColor,
                         borderRadius: BorderRadius.circular(32)
                       ),
                       margin: EdgeInsetsGeometry.fromLTRB(8, 38, 8, 16),
                       width: 396,
                       height: 190,
 
-                      child: ListView(
-                        physics: BouncingScrollPhysics(),
-                        scrollDirection: Axis.horizontal,
-                            children: [
-                              hourlyForecast('8', Icon(Icons.thunderstorm, color: Color.fromRGBO(0, 0, 0, 0.5),), '3'),
-                              hourlyForecast('8', Icon(Icons.thunderstorm, color: Color.fromRGBO(0, 0, 0, 0.5),), '3'),
-                              hourlyForecast('8', Icon(Icons.thunderstorm, color: Color.fromRGBO(0, 0, 0, 0.5),), '3'),
-                              hourlyForecast('8', Icon(Icons.thunderstorm, color: Color.fromRGBO(0, 0, 0, 0.5),), '3'),
-                              hourlyForecast('8', Icon(Icons.thunderstorm, color: Color.fromRGBO(0, 0, 0, 0.5),), '3'),
-                              hourlyForecast('8', Icon(Icons.thunderstorm, color: Color.fromRGBO(0, 0, 0, 0.5),), '3'),
-                              hourlyForecast('8', Icon(Icons.thunderstorm, color: Color.fromRGBO(0, 0, 0, 0.5),), '3'),
-                              hourlyForecast('8', Icon(Icons.thunderstorm, color: Color.fromRGBO(0, 0, 0, 0.5),), '3'),
-                              hourlyForecast('8', Icon(Icons.thunderstorm, color: Color.fromRGBO(0, 0, 0, 0.5),), '3'),
-                              hourlyForecast('8', Icon(Icons.thunderstorm, color: Color.fromRGBO(0, 0, 0, 0.5),), '3'),
-                              hourlyForecast('8', Icon(Icons.thunderstorm, color: Color.fromRGBO(0, 0, 0, 0.5),), '3'),
-                              hourlyForecast('8', Icon(Icons.thunderstorm, color: Color.fromRGBO(0, 0, 0, 0.5),), '3'),
-                              hourlyForecast('8', Icon(Icons.thunderstorm, color: Color.fromRGBO(0, 0, 0, 0.5),), '3'),
-                            ],
-                          )
+                      child: buildHourlyForecast(_weatherModel!)
+
                     )
                   ],
                 ),
@@ -356,37 +448,37 @@ late final Object minT = _weatherModel?.minTemp.toInt()??"--";
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            retrunContainer('Feels Like',
+                            buildContainer('Feels Like',
                                 Icon(
                                   Icons.emoji_emotions,
                                   size: 75,
                                   color: Color.fromRGBO(0, 0, 0, 0.7),
                                 ),
-                                '${_weatherModel?.feelsLike}'),
+                                feelsLike),
 
-                            retrunContainer('Visibility', Icon(Icons.remove_red_eye_outlined,size: 75,
-                              color: Color.fromRGBO(0, 0, 0, 0.7),), '${_weatherModel?.feelsLike}'),
+                            buildContainer('Visibility', Icon(Icons.remove_red_eye_outlined,size: 75,
+                              color: Color.fromRGBO(0, 0, 0, 0.7),), '${_weatherModel?.humidity}'),
 
                           ],
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            retrunContainer('Humidity', Icon(Icons.water_drop,size: 75,
+                            buildContainer('Humidity', Icon(Icons.water_drop,size: 75,
                               color: Color.fromRGBO(0, 0, 0, 0.7),), '${_weatherModel?.humidity}'),
 
-                            retrunContainer('Wind Speed', Icon(Icons.air,size: 75,
+                            buildContainer('Wind Speed', Icon(Icons.air,size: 75,
                               color: Color.fromRGBO(0, 0, 0, 0.7),), '${_weatherModel?.windSpeed}'),
                           ],
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            retrunContainer('Pressure', Icon(Icons.compress,size: 75,
-                              color: Color.fromRGBO(0, 0, 0, 0.7),), '${_weatherModel?.feelsLike}'),
+                            buildContainer('Sunset', Icon(Icons.nights_stay_rounded,size: 75,
+                              color: Color.fromRGBO(0, 0, 0, 0.7),), '6:13 PM'),
 
-                            retrunContainer('Sea Level', Icon(Icons.landscape,size: 75,
-                              color: Color.fromRGBO(0, 0, 0, 0.7),), '${_weatherModel?.feelsLike}'),
+                            buildContainer('Elevation', Icon(Icons.landscape,size: 75,
+                              color: Color.fromRGBO(0, 0, 0, 0.7),), '${_weatherModel?.elevation}'),
                           ],
                         ),
                       ],
