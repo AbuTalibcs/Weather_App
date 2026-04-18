@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:weather_app/app_theme.dart';
 import 'package:weather_app/models/weather_model.dart';
 import 'package:weather_app/service/weather_service.dart';
-import 'package:weather_app/screens/settings.dart';
-import 'package:weather_app/main.dart';
 
 String defaultCity = 'Ranchi';
 
@@ -19,10 +18,10 @@ class HomeScreen extends StatefulWidget {
   });
 
   @override
-  State<HomeScreen> createState() => _WeatherappHomepage();
+  State<HomeScreen> createState() => _WeatherAppHomepage();
 }
 
-class _WeatherappHomepage extends State<HomeScreen>{
+class _WeatherAppHomepage extends State<HomeScreen>{
 
   final WeatherService _weatherService = WeatherService() ;
   WeatherModel? _weatherModel;
@@ -41,12 +40,9 @@ class _WeatherappHomepage extends State<HomeScreen>{
         isLoading = false;
       });
     } catch (e){
-      print("REAL ERROR: $e");
       setState(() {
         isLoading = false;
       });
-      //isLoading = false;
-
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Error Fetching Data"))
       );
@@ -70,67 +66,60 @@ class _WeatherappHomepage extends State<HomeScreen>{
     }
 
     final clear1 =
-    widget.isDarkMode
-        ? const Color(0xFF0F2027)
-        : Colors.blue;
+      widget.isDarkMode
+        ? AppTheme.darkBlue
+        : AppTheme.blue;
 
     final clear2 =
-    widget.isDarkMode
-        ? const Color(0xFF203A43)
-        : Colors.white;
+      widget.isDarkMode
+        ? AppTheme.darkBlueWhite
+        : AppTheme.white;
 
     final clear3 =
-    widget.isDarkMode
-        ? Colors.blueGrey
-        : Colors.grey;
+      widget.isDarkMode
+        ? AppTheme.blueGrey
+        : AppTheme.grey;
 
-    //[Colors.blueGrey, Colors.white, Colors.indigo]
     final rain1 =
-    widget.isDarkMode
-        ? const Color(0xFF0F2027)
-        : Colors.blueGrey;
+      widget.isDarkMode
+        ? AppTheme.darkBlue
+        : AppTheme.blueGrey;
 
     final rain2 =
-    widget.isDarkMode
-        ? const Color(0xFF203A43)
-        : Colors.white;
+      widget.isDarkMode
+        ? AppTheme.darkBlueWhite
+        : AppTheme.white;
 
     final rain3 =
-    widget.isDarkMode
-        ? Colors.blueGrey
-        : Colors.indigoAccent;
-
-    //[Colors.amberAccent, Colors.cyanAccent, Colors.tealAccent],
+      widget.isDarkMode
+        ? AppTheme.blueGrey
+        : AppTheme.indigoAccent;
 
     final default1 =
-    widget.isDarkMode
-        ? const Color(0xFF0F2027)
-        : Colors.amberAccent;
+      widget.isDarkMode
+        ? AppTheme.darkerBlue
+        : AppTheme.skyBlue;
 
     final default2 =
-    widget.isDarkMode
-        ? const Color(0xFF203A43)
-        : Colors.cyanAccent;
+      widget.isDarkMode
+        ? AppTheme.maroon
+        : AppTheme.cyan;
 
     final default3 =
-    widget.isDarkMode
-        ? Colors.blueGrey
-        : Colors.tealAccent;
+      widget.isDarkMode
+        ? AppTheme.darkTeal
+        : AppTheme.tealAccent;
 
     /// Color for text
-    final blackNwhiteColor =
-    widget.isDarkMode
-        ? const Color.fromRGBO(255, 255, 255, 0.7) // dark
-        : const Color.fromRGBO(0, 0, 0, 0.65); // light
+    final mainTextColor =
+      widget.isDarkMode
+        ? AppTheme.whiteWithOpacity // dark
+        : AppTheme.blackWithOpacity; // light
 
     final containerColor =
-    widget.isDarkMode
-        ? const Color.fromRGBO(0, 0, 0, 0.65) // light
-        : const Color.fromRGBO(255, 255, 255, 0.7); // dark
-
-
-
-
+      widget.isDarkMode
+        ? AppTheme.blackWithOpacity // dark
+        : AppTheme.whiteWithOpacity; // light
 
 
     final String city = _weatherModel?.cityName??"--"; // Default city set to Ranchi
@@ -181,9 +170,9 @@ class _WeatherappHomepage extends State<HomeScreen>{
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Text(formatHour(hour.time), style: TextStyle(color: blackNwhiteColor),),
-                  Icon(getWeatherIcon(hour.weatherCode), color: blackNwhiteColor,),
-                  Text("${hour.temperature.round()}°", style: TextStyle(color: blackNwhiteColor),),
+                  Text(formatHour(hour.time), style: TextStyle(color: mainTextColor),),
+                  Icon(getWeatherIcon(hour.weatherCode), color: mainTextColor,),
+                  Text("${hour.temperature.round()}°", style: TextStyle(color: mainTextColor),),
                 ],
               ),
             );
@@ -300,20 +289,20 @@ class _WeatherappHomepage extends State<HomeScreen>{
                   spacing: 130,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    IconButton(onPressed: getData, icon: Icon(Icons.refresh, color: blackNwhiteColor,)),
+                    IconButton(onPressed: getData, icon: Icon(Icons.refresh, color: mainTextColor,)),
                     Container(
                       width: 47,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.pin_drop_outlined,
-                            color: blackNwhiteColor,
+                            color: mainTextColor,
                             size:25
                           ),
                           Text(
                               city,
                               style : TextStyle(
-                                  color: blackNwhiteColor,
+                                  color: mainTextColor,
                                   fontWeight: FontWeight.w500,
                                   fontSize: 16
                               )
@@ -354,20 +343,20 @@ class _WeatherappHomepage extends State<HomeScreen>{
                                       Text(temperature.toString(),
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          color: blackNwhiteColor,
+                                          color: mainTextColor,
                                           fontSize: 67,
                                         ),
                                       ),
                                       Text("°",
                                         style: TextStyle(
-                                          color: blackNwhiteColor,
+                                          color: mainTextColor,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 67,
                                         ),
                                       ),
                                       Text(temperatureUnit,
                                         style: TextStyle(
-                                          color: blackNwhiteColor,
+                                          color: mainTextColor,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 67,
                                         ),
@@ -376,7 +365,7 @@ class _WeatherappHomepage extends State<HomeScreen>{
                                   ),
                                   Text("High: ${maxT}°C Low: ${minT}°C",
                                     style: TextStyle(
-                                      color: blackNwhiteColor,
+                                      color: mainTextColor,
                                         fontWeight: FontWeight.w500
                                     ),
                                   )
@@ -405,7 +394,7 @@ class _WeatherappHomepage extends State<HomeScreen>{
                                     Text(
                                     description,
                                     style: TextStyle(
-                                      color: blackNwhiteColor,
+                                      color: mainTextColor,
                                         fontSize: 18,
                                         fontWeight: FontWeight.w500
                                     ),
@@ -425,7 +414,7 @@ class _WeatherappHomepage extends State<HomeScreen>{
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                          color: blackNwhiteColor,
+                          color: mainTextColor,
                         borderRadius: BorderRadius.circular(32)
                       ),
                       margin: EdgeInsetsGeometry.fromLTRB(8, 38, 8, 16),
